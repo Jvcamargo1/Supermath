@@ -1,45 +1,74 @@
-Markdown
 # CompNum - Calculadora de Computação Numérica
 
-O **CompNum** é uma aplicação web interativa desenvolvida em Python com o framework Streamlit. O objetivo do projeto é fornecer uma interface resolução, análise e experimentação de problemas e algoritmos clássicos de cálculo numérico.
+O **CompNum** é uma aplicação web interativa desenvolvida em Python com o framework Streamlit. O objetivo do projeto é fornecer uma interface para resolução, análise e experimentação de problemas e algoritmos clássicos de cálculo numérico.
 
-## Como Executar o Projeto 
+## 🚀 Como Executar o Projeto
 
 Siga as instruções abaixo para configurar o ambiente e executar a aplicação em sua máquina local.
 
-### 1. Pré-requisitos
+---
 
-Certifique-se de ter o Python (versão 3.8 ou superior) e o Git instalados em seu sistema.
+## 📋 1. Pré-requisitos
 
-### 2. Clonando o Repositório
+Certifique-se de ter os seguintes itens instalados:
+
+- Python (versão 3.8 ou superior)
+- Git
+
+---
+
+## 📥 2. Clonando o Repositório
 
 Clone o repositório para o seu ambiente local:
 
 ```bash
-git clone [https://github.com/Jvcamargo1/comp_num.git](https://github.com/Jvcamargo1/comp_num.git)
+git clone https://github.com/Jvcamargo1/comp_num.git
 cd comp_num
+```
 
+---
 
-3. Configurando o Ambiente Virtual
+## 🐍 3. Configurando o Ambiente Virtual
+
 Recomenda-se o uso de um ambiente virtual para isolar as dependências do projeto:
 
-Bash
+```bash
 # Criação do ambiente virtual
 python -m venv venv
 
-# Ativação do ambiente virtual (Windows)
+# Ativação no Windows
 venv\Scripts\activate
 
-# Ativação do ambiente virtual (Linux/macOS)
+# Ativação no Linux/macOS
 source venv/bin/activate
-4. Instalando as Dependências
+```
+
+---
+
+## 📦 4. Instalando as Dependências
+
 Com o ambiente virtual ativado, instale as bibliotecas necessárias:
 
-Bash
+```bash
 pip install -r requirements.txt
-5. Executando a Aplicação
+```
+
+---
+
+## ▶️ 5. Executando a Aplicação
+
 Inicie o servidor local do Streamlit executando o comando abaixo na raiz do projeto:
 
-Bash
+```bash
 streamlit run app.py
-A aplicação estará disponível e será aberta automaticamente no seu navegador padrão no endereço http://localhost:8501.
+```
+
+A aplicação estará disponível no navegador no endereço:
+
+http://localhost:8501
+
+---
+
+## 💡 Sobre o Projeto
+
+O **CompNum** foi desenvolvido com foco educacional, permitindo explorar conceitos importantes de computação numérica de forma prática e interativa.
