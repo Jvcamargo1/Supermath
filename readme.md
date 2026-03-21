@@ -2,6 +2,16 @@
 
 O **CompNum** é uma aplicação web desenvolvida em Python com o framework Streamlit. O objetivo do projeto é fornecer uma interface para resolução, análise e experimentação de problemas e algoritmos clássicos de cálculo numérico de acordo com o que foi especificado no projeto da aula de Computação Numérica do curso de Ciência da Computação da UNISAGRADO.
 
+---
+
+## Como Acessar o projeto
+
+O app foi upado no StreamLit Cloud Community para facilitar o acesso: https://trabalhocompnum.streamlit.app/
+
+Caso queira executar localmente, siga as proximas instruções
+
+---
+
 ## Como Executar o Projeto
 
 Siga as instruções abaixo para configurar o ambiente e executar a aplicação em sua máquina local.
@@ -69,4 +79,3 @@ http://localhost:8501
 
 ---
 
-O app foi upado no StreamLit Cloud Community para facilitar o acesso: https://trabalhocompnum.streamlit.app/
