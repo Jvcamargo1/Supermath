@@ -68,3 +68,5 @@ A aplicação estará disponível no navegador no endereço:
 http://localhost:8501
 
 ---
+
+O app foi upado no StreamLit Cloud Community para facilitar o acesso: https://trabalhocompnum.streamlit.app/
