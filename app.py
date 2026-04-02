@@ -1,5 +1,7 @@
 import streamlit as st
 import numpy as np
+import os
+from dotenv import load_dotenv
 import matplotlib.pyplot as plt
 import sympy
 
@@ -15,13 +17,16 @@ from matematica.raizes.ponto_fixo import ponto_fixo
 from matematica.raizes.newton_raphson import newton_raphson
 from matematica.raizes.secantes import secantes
 
+# Carrega as variáveis de ambiente do arquivo .env
+load_dotenv()
+
 # --- Page Configuration and Styling ---
 st.set_page_config(
-    page_title="CompNum",
+    page_title="SuperMath",
     page_icon="🧮",
     layout="wide",
     menu_items={
-        'About': "### CompNum\nCalculadora de computação numérica desenvolvida por um agente de IA."
+        'About': "### SuperMath\nCalculadora de computação numérica desenvolvida por um agente de IA."
     }
 )
 
@@ -53,7 +58,13 @@ st.markdown("""
 
 def main():
     """Função principal da aplicação Streamlit com navegação por abas."""
-    st.title("🧮 CompNum")
+    st.title("🧮 SuperMath")
+
+    # --- BARRA LATERAL DO CHATBOT ---
+    # Movido para a barra lateral para não obstruir a calculadora.
+    with st.sidebar:
+        st.header("🤖 Assistente IA")
+        render_chatbot()
 
     tab_raizes, tab_sistemas, tab_ajustes = st.tabs([
         "🎯 Raízes de Funções",
@@ -67,7 +78,6 @@ def main():
         show_sistemas_page()
     with tab_ajustes:
         show_ajustes_page()
-
 
 
 def parse_function(func_str, var_symbol='x'):
@@ -240,6 +250,68 @@ def show_ajustes_page():
 
             except ValueError: st.error("Erro nos dados de entrada. Verifique a formatação.")
             except Exception as e: st.error(f"Ocorreu um erro inesperado: {e}")
+
+
+def render_chatbot():
+    """Renderiza a interface do Chatbot na barra lateral."""
+    st.markdown("Tire suas dúvidas sobre os métodos numéricos, algoritmos ou peça ajuda para entender as respostas!")
+
+    # Tenta carregar das Secrets do Streamlit Cloud; se não existir, usa as variáveis de ambiente local (.env)
+    try:
+        api_key = st.secrets["GROQ_API_KEY"]
+    except (KeyError, FileNotFoundError):
+        api_key = os.getenv("GROQ_API_KEY")
+
+    if not api_key:
+        st.warning("Chave da API do Groq não encontrada. Verifique seu `.env` ou os Secrets do Streamlit.")
+        st.code("GROQ_API_KEY='sua_chave_aqui'", language="bash")
+        return
+
+    try:
+        from groq import Groq
+        client = Groq(api_key=api_key)
+    except ImportError:
+        st.error("A biblioteca 'groq' não está instalada. Execute `pip install groq` no seu terminal.")
+        return
+    except Exception as e:
+        st.error(f"Erro ao inicializar o cliente Groq: {e}")
+        return
+
+    # Inicializa o histórico do chat na sessão do Streamlit
+    if "messages" not in st.session_state:
+        st.session_state.messages = [
+            {"role": "system", "content": "Você é o assistente virtual do SuperMath, uma calculadora de cálculo numérico para estudantes de Ciência da Computação. Seu objetivo é ajudar o usuário a usar o site e explicar de forma didática e fácil como funcionam métodos como Bisseção, Newton-Raphson, Eliminação de Gauss, Ajuste de Curvas, etc. Responda em português de forma clara e amigável."}
+        ]
+
+    # Exibe as mensagens do chat (ignora a mensagem de sistema)
+    for msg in st.session_state.messages:
+        if msg["role"] != "system":
+            with st.chat_message(msg["role"]):
+                st.markdown(msg["content"])
+
+    # Campo de entrada para a pergunta do usuário
+    if prompt := st.chat_input("Faça uma pergunta (ex: 'Como funciona o método de Newton-Raphson?')..."):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+
+        with st.chat_message("assistant"):
+            try:
+                # Chamada para a API do Groq usando o modelo Llama 3.1 veloz
+                completion = client.chat.completions.create(
+                    model="llama-3.1-8b-instant",
+                    messages=st.session_state.messages,
+                    temperature=0.3,
+                    max_tokens=1024,
+                )
+                response = completion.choices[0].message.content
+                st.markdown(response)
+                st.session_state.messages.append({"role": "assistant", "content": response})
+            except Exception as e:
+                st.error("Ocorreu um erro na comunicação com o Groq. Isso pode acontecer se a API retornar uma mensagem com caracteres especiais.")
+                # st.exception é a forma mais robusta de exibir um erro, pois lida com a formatação e evita problemas de encoding.
+                st.exception(e)
+
 
 if __name__ == "__main__":
     main()

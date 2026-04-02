@@ -1,0 +1,12 @@
+# Ambiente Virtual
+venv/
+
+# Arquivo de variáveis de ambiente
+.env
+
+# Arquivos de cache do Python
+__pycache__/
+
+.history
+
+.streamlit

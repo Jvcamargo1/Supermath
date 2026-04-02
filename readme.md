@@ -1,6 +1,6 @@
-# CompNum - Calculadora de Computação Numérica
+# SuperMath - Calculadora de Computação Numérica
 
-O **CompNum** é uma aplicação web desenvolvida em Python com o framework Streamlit. O objetivo do projeto é fornecer uma interface para resolução, análise e experimentação de problemas e algoritmos clássicos de cálculo numérico de acordo com o que foi especificado no projeto da aula de Computação Numérica do curso de Ciência da Computação da UNISAGRADO.
+O **SuperMath** é uma aplicação web desenvolvida em Python com o framework Streamlit. O objetivo do projeto é fornecer uma interface para resolução, análise e experimentação de problemas e algoritmos clássicos de cálculo numérico de acordo com o que foi especificado no projeto da aula de Computação Numérica do curso de Ciência da Computação da UNISAGRADO.
 
 ## Como Executar o Projeto
 
