@@ -15,7 +15,7 @@ O **SuperMath** é uma aplicação web desenvolvida em Python com o framework St
 
 ## Como Acessar o projeto
 
-O app foi upado no StreamLit Cloud Community para facilitar o acesso: https://trabalhocompnum.streamlit.app/
+O app foi upado no StreamLit Cloud Community para facilitar o acesso: https://supermath.streamlit.app/
 
 Caso queira executar localmente, siga as proximas instruções
 
