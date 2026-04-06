@@ -129,8 +129,8 @@ def show_raizes_page():
             params['x0'] = cols[0].number_input("Chute (x0)", value=1.0, format="%.4f")
             params['x1'] = cols[1].number_input("Chute (x1)", value=2.0, format="%.4f")
 
-        params['tol'] = cols[2].number_input("Tolerância", value=1e-6, format="%.2e")
-        params['max_iter'] = cols[3].number_input("Max. Iterações", value=100, min_value=1, step=1)
+        params['tol'] = cols[2].number_input("Tolerância", value=1e-6, format="%.2e", key="tol_raizes")
+        params['max_iter'] = cols[3].number_input("Max. Iterações", value=100, min_value=1, step=1, key="max_iter_raizes")
 
         current_inputs = {
             "metodo": escolha_metodo,
@@ -220,9 +220,9 @@ def show_sistemas_page():
 
         if escolha_metodo in ["Jacobi", "Gauss-Seidel"]:
             cols_iter = st.columns(3)
-            x0_str = cols_iter[0].text_input("Chute inicial x0", "0, 0, 0")
-            tol = cols_iter[1].number_input("Tolerância", value=1e-6, format="%.2e")
-            max_iter = cols_iter[2].number_input("Max. Iterações", value=100, min_value=1, step=1)
+            x0_str = cols_iter[0].text_input("Chute inicial x0", "0, 0, 0", key="x0_sistemas")
+            tol = cols_iter[1].number_input("Tolerância", value=1e-6, format="%.2e", key="tol_sistemas")
+            max_iter = cols_iter[2].number_input("Max. Iterações", value=100, min_value=1, step=1, key="max_iter_sistemas")
         else:
             x0_str, tol, max_iter = None, None, None
             
@@ -240,14 +240,18 @@ def show_sistemas_page():
             
         if st.session_state.get("trigger_calc_sistemas") == current_inputs:
             try:
-                mat_A = np.array([list(map(float, row.split(','))) for row in a_str.strip().split('\n')]); vet_b = np.array(list(map(float, b_str.strip().split(','))))
-                if mat_A.shape[0] != mat_A.shape[1]: st.error("A matriz A deve ser quadrada."); return
-                if mat_A.shape[0] != len(vet_b): st.error("As dimensões de A e b são incompatíveis."); return
+                try:
+                    mat_A = np.array([list(map(float, row.split(','))) for row in a_str.strip().split('\n')]); vet_b = np.array(list(map(float, b_str.strip().split(','))))
+                except Exception:
+                    raise ValueError("Erro nos dados de entrada. Verifique a formatação com vírgulas e quebras de linha.")
+                
+                if mat_A.shape[0] != mat_A.shape[1]: raise ValueError("A matriz A deve ser quadrada.")
+                if mat_A.shape[0] != len(vet_b): raise ValueError("As dimensões de A e b são incompatíveis.")
                 
                 if escolha_metodo == "Eliminação de Gauss com Pivoteamento":
                     solucao = gauss_pivoteamento(mat_A, vet_b)
                     if solucao is not None: st.success(f"**Vetor solução x:** `{np.array2string(solucao, precision=6)}`")
-                    else: st.error("A matriz é singular. Não há solução única.")
+                    else: raise ValueError("A matriz é singular. Não há solução única.")
                 elif escolha_metodo == "Fatoração LU":
                     P, L, U = fatoracao_lu(mat_A)
                     if P is not None:
@@ -257,10 +261,13 @@ def show_sistemas_page():
                             st.text("Matriz de Permutação (P):"); st.code(np.array2string(P, precision=4), language=None)
                             st.text("Matriz Triangular Inferior (L):"); st.code(np.array2string(L, precision=4), language=None)
                             st.text("Matriz Triangular Superior (U):"); st.code(np.array2string(U, precision=4), language=None)
-                    else: st.error("A fatoração LU falhou. A matriz pode ser singular.")
+                    else: raise ValueError("A fatoração LU falhou. A matriz pode ser singular.")
                 elif escolha_metodo in ["Jacobi", "Gauss-Seidel"]:
-                    vet_x0 = np.array(list(map(float, x0_str.split(','))))
-                    if len(vet_x0) != len(vet_b): st.error("O vetor de chute inicial x0 tem dimensões incorretas."); return
+                    try:
+                        vet_x0 = np.array(list(map(float, x0_str.split(','))))
+                    except Exception:
+                        raise ValueError("O vetor de chute inicial possui formatação inválida.")
+                    if len(vet_x0) != len(vet_b): raise ValueError("O vetor de chute inicial x0 tem dimensões incorretas.")
                     solucao, k = jacobi(mat_A, vet_b, vet_x0, tol, max_iter) if escolha_metodo == "Jacobi" else gauss_seidel(mat_A, vet_b, vet_x0, tol, max_iter)
                     st.success(f"**Vetor solução x:** `{np.array2string(solucao, precision=6)}`")
                     st.info(f"Solução encontrada em {k} iterações.")
@@ -272,11 +279,10 @@ def show_sistemas_page():
                     "matriz_A": a_str,
                     "vetor_b": b_str,
                     "chute_inicial": x0_str,
-                    "resultado_encontrado": np.array2string(solucao, precision=6) if 'solucao' in locals() and solucao is not None else "Falhou"
+                    "resultado_encontrado": np.array2string(solucao, precision=6)
                 }
                 # ----------------------------------------------
                 
-            except ValueError: st.error("Erro nos dados de entrada. Verifique a formatação.")
             except Exception as e: 
                 st.error(f"Ocorreu um erro de cálculo: {e}")
                 # --- NOVO: SALVANDO O ERRO PARA A IA LER ---
@@ -320,22 +326,26 @@ def show_ajustes_page():
             
         if st.session_state.get("trigger_calc_ajustes") == current_inputs:
             try:
-                x_data = np.array([float(i.strip()) for i in x_str.split(',')]); y_data = np.array([float(i.strip()) for i in y_str.split(',')])
-                if len(x_data) != len(y_data): st.error("Os conjuntos X e Y devem ter o mesmo número de pontos."); return
-                if len(x_data) < 2: st.error("São necessários pelo menos 2 pontos para o ajuste."); return
+                try:
+                    x_data = np.array([float(i.strip()) for i in x_str.split(',')]); y_data = np.array([float(i.strip()) for i in y_str.split(',')])
+                except Exception:
+                    raise ValueError("Erro nos dados de entrada. Verifique se estão formatados com vírgulas.")
+                    
+                if len(x_data) != len(y_data): raise ValueError("Os conjuntos X e Y devem ter o mesmo número de pontos.")
+                if len(x_data) < 2: raise ValueError("São necessários pelo menos 2 pontos para o ajuste.")
                 
                 res_col, plot_col = st.columns([1, 2])
 
                 with res_col:
                     if escolha_metodo == "Regressão Linear":
                         a, b = regressao_linear(x_data, y_data)
-                        if a is None: st.error("Não foi possível calcular a regressão."); return
+                        if a is None: raise ValueError("Não foi possível calcular a regressão.")
                         st.success("Equação da Reta Ajustada:")
                         st.latex(f"y = {a:.5f}x {'+' if b >= 0 else '-'} {abs(b):.5f}")
                     else: # Mínimos Quadrados
-                        if len(x_data) <= grau: st.error("O número de pontos deve ser maior que o grau do polinômio."); return
+                        if len(x_data) <= grau: raise ValueError("O número de pontos deve ser maior que o grau do polinômio.")
                         coefs = minimos_quadrados(x_data, y_data, grau)
-                        if coefs is None: st.error("Não foi possível calcular o ajuste polinomial."); return
+                        if coefs is None: raise ValueError("Não foi possível calcular o ajuste polinomial.")
                         p = np.poly1d(coefs)
                         eq = "y = " + " ".join([f"{'' if i==0 else ('+ ' if c>=0 else '- ')}{abs(c):.4f}x^{grau-i}" for i, c in enumerate(coefs)]).replace("x^0", "").replace("x^1 ", "x ")
                         st.success("Equação do Polinômio Ajustado:")
@@ -367,7 +377,6 @@ def show_ajustes_page():
                 }
                 # ----------------------------------------------
 
-            except ValueError: st.error("Erro nos dados de entrada. Verifique a formatação.")
             except Exception as e: 
                 st.error(f"Ocorreu um erro inesperado: {e}")
                 # --- NOVO: SALVANDO O ERRO PARA A IA LER ---
