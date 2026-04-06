@@ -9,7 +9,7 @@ O **SuperMath** é uma aplicação web desenvolvida em Python com o framework St
 - **🎯 Raízes de Funções:** Bisseção, Ponto Fixo, Newton-Raphson e Secantes.
 - **🔢 Sistemas Lineares:** Eliminação de Gauss com Pivoteamento, Fatoração LU, Jacobi e Gauss-Seidel.
 - **📈 Ajuste de Curvas:** Regressão Linear e Mínimos Quadrados (Polinomial).
-- **🤖 Assistente IA Integrado:** Chatbot inteligente alimentado pela API do Groq (modelo Llama 3) para tirar dúvidas sobre os métodos numéricos e ajudar na interpretação dos resultados!
+- **🤖 Assistente IA Contextual:** Chatbot inteligente alimentado pela API do Groq (modelo Llama 3.3 70B). O assistente possui *Function Calling* e **lê os dados da sua tela em tempo real**, sendo capaz de explicar o motivo exato de uma falha matemática no seu cálculo ou detalhar passo a passo como o resultado atual foi encontrado!
 
 ---
 

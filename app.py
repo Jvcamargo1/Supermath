@@ -16,6 +16,7 @@ from metodos_numericos.raizes.bissecao import bissecao
 from metodos_numericos.raizes.ponto_fixo import ponto_fixo
 from metodos_numericos.raizes.newton_raphson import newton_raphson
 from metodos_numericos.raizes.secantes import secantes
+from tools import obter_ultimo_calculo
 
 # Carrega as variáveis de ambiente do arquivo .env
 load_dotenv()
@@ -60,12 +61,6 @@ def main():
     """Função principal da aplicação Streamlit com navegação por abas."""
     st.title("🧮 SuperMath")
 
-    # --- BARRA LATERAL DO CHATBOT ---
-    # Movido para a barra lateral para não obstruir a calculadora.
-    with st.sidebar:
-        st.header("🤖 Assistente IA")
-        render_chatbot()
-
     tab_raizes, tab_sistemas, tab_ajustes = st.tabs([
         "🎯 Raízes de Funções",
         "🔢 Sistemas Lineares",
@@ -78,6 +73,21 @@ def main():
         show_sistemas_page()
     with tab_ajustes:
         show_ajustes_page()
+
+    # --- BARRA LATERAL DO CHATBOT ---
+    # Chamado no final do código para garantir que ele consiga ler 
+    # o "ultimo_calculo" com os dados mais atualizados das abas acima!
+    with st.sidebar:
+        # Cabeçalho com botão de limpar chat alinhado
+        head_col1, head_col2 = st.columns([5, 1])
+        with head_col1:
+            st.header("🤖 Assistente IA")
+        with head_col2:
+            st.markdown("<div style='margin-top: 22px;'></div>", unsafe_allow_html=True)
+            if st.button("🗑️", help="Limpar histórico do chat"):
+                if "messages" in st.session_state: del st.session_state["messages"]
+                st.rerun()
+        render_chatbot()
 
 
 def parse_function(func_str, var_symbol='x'):
@@ -95,7 +105,14 @@ def show_raizes_page():
     """Exibe a página para os métodos de raízes de funções."""
     st.subheader("Encontre a raiz de `f(x) = 0` para uma dada função")
     
-    escolha_metodo = st.selectbox("Escolha o método:", ["Bisseção", "Ponto Fixo", "Newton-Raphson", "Secantes"])
+    col1, col2 = st.columns([4, 1])
+    with col1:
+        escolha_metodo = st.selectbox("Escolha o método:", ["Bisseção", "Ponto Fixo", "Newton-Raphson", "Secantes"])
+    with col2:
+        st.markdown("<div style='margin-top: 27px;'></div>", unsafe_allow_html=True)
+        if st.button("🤖 Como funciona?", key="help_raizes", use_container_width=True):
+            st.session_state["pergunta_pendente"] = f"Pode me explicar de forma didática o que é e como funciona o método de {escolha_metodo} para encontrar raízes de funções?"
+            st.toast("💬 Verifique a barra lateral! A IA está respondendo...", icon="🤖")
     
     with st.container(border=True):
         func_str = st.text_input("Função f(x)", value="x**3 - x - 2", help="Use sintaxe Python. Funções comuns: exp, sin, cos, tan, sqrt, log.")
@@ -115,7 +132,16 @@ def show_raizes_page():
         params['tol'] = cols[2].number_input("Tolerância", value=1e-6, format="%.2e")
         params['max_iter'] = cols[3].number_input("Max. Iterações", value=100, min_value=1, step=1)
 
+        current_inputs = {
+            "metodo": escolha_metodo,
+            "func_str": func_str,
+            "g_func_str": g_func_str if escolha_metodo == "Ponto Fixo" else None,
+            "params": params
+        }
         if st.button("Encontrar Raiz", type="primary", key="raiz_btn"):
+            st.session_state["trigger_calc_raizes"] = current_inputs
+            
+        if st.session_state.get("trigger_calc_raizes") == current_inputs:
             func, expr, err = parse_function(func_str)
             if err: st.error(err); return
 
@@ -133,6 +159,17 @@ def show_raizes_page():
                     resultado, info = newton_raphson(func, df, params['x0'], params['tol'], params['max_iter'])
                 elif escolha_metodo == "Secantes": resultado, info = secantes(func, params['x0'], params['x1'], params['tol'], params['max_iter'])
                 
+                # --- NOVO: SALVANDO O CÁLCULO PARA A IA LER ---
+                st.session_state["ultimo_calculo"] = {
+                    "aba": "Raízes de Funções",
+                    "metodo": escolha_metodo,
+                    "funcao": func_str,
+                    "parametros": params,
+                    "resultado_encontrado": f"{resultado:.7f}" if isinstance(resultado, (int, float, np.number)) else "Falhou",
+                    "detalhes": info
+                }
+                # ----------------------------------------------
+
                 # --- NEW COMPACT LAYOUT ---
                 if isinstance(resultado, (int, float)):
                     res_col, plot_col = st.columns([1, 2])
@@ -153,11 +190,29 @@ def show_raizes_page():
                     st.error(f"Não foi possível encontrar a raiz. Motivo: {info}")
             except Exception as e: 
                 st.error(f"Ocorreu um erro de cálculo: {e}")
+                
+                # --- NOVO: SALVANDO O ERRO PARA A IA LER ---
+                st.session_state["ultimo_calculo"] = {
+                    "aba": "Raízes de Funções",
+                    "metodo": escolha_metodo,
+                    "funcao": func_str,
+                    "parametros": params,
+                    "erro_gerado": str(e)
+                }
+                # -------------------------------------------
 
 def show_sistemas_page():
     """Exibe a página para os métodos de sistemas lineares."""
     st.subheader("Resolva um sistema de equações lineares no formato `Ax = b`")
-    escolha_metodo = st.selectbox("Escolha o método:", ["Eliminação de Gauss com Pivoteamento", "Fatoração LU", "Jacobi", "Gauss-Seidel"])
+
+    col1, col2 = st.columns([4, 1])
+    with col1:
+        escolha_metodo = st.selectbox("Escolha o método:", ["Eliminação de Gauss com Pivoteamento", "Fatoração LU", "Jacobi", "Gauss-Seidel"])
+    with col2:
+        st.markdown("<div style='margin-top: 27px;'></div>", unsafe_allow_html=True)
+        if st.button("🤖 Como funciona?", key="help_sistemas", use_container_width=True):
+            st.session_state["pergunta_pendente"] = f"Pode me explicar de forma didática o que é e como funciona o método de {escolha_metodo} para resolver Sistemas Lineares?"
+            st.toast("💬 Verifique a barra lateral! A IA está respondendo...", icon="🤖")
 
     with st.container(border=True):
         a_str = st.text_area("Matriz A", "4, -1, 1\n-1, 4, -2\n1, -2, 4", height=120, help="Separe linhas com 'enter' e elementos com vírgula.")
@@ -168,8 +223,22 @@ def show_sistemas_page():
             x0_str = cols_iter[0].text_input("Chute inicial x0", "0, 0, 0")
             tol = cols_iter[1].number_input("Tolerância", value=1e-6, format="%.2e")
             max_iter = cols_iter[2].number_input("Max. Iterações", value=100, min_value=1, step=1)
+        else:
+            x0_str, tol, max_iter = None, None, None
+            
+        current_inputs = {
+            "metodo": escolha_metodo,
+            "a_str": a_str,
+            "b_str": b_str,
+            "x0_str": x0_str,
+            "tol": tol,
+            "max_iter": max_iter
+        }
         
         if st.button("Calcular Solução", type="primary", key="sis_btn"):
+            st.session_state["trigger_calc_sistemas"] = current_inputs
+            
+        if st.session_state.get("trigger_calc_sistemas") == current_inputs:
             try:
                 mat_A = np.array([list(map(float, row.split(','))) for row in a_str.strip().split('\n')]); vet_b = np.array(list(map(float, b_str.strip().split(','))))
                 if mat_A.shape[0] != mat_A.shape[1]: st.error("A matriz A deve ser quadrada."); return
@@ -195,13 +264,43 @@ def show_sistemas_page():
                     solucao, k = jacobi(mat_A, vet_b, vet_x0, tol, max_iter) if escolha_metodo == "Jacobi" else gauss_seidel(mat_A, vet_b, vet_x0, tol, max_iter)
                     st.success(f"**Vetor solução x:** `{np.array2string(solucao, precision=6)}`")
                     st.info(f"Solução encontrada em {k} iterações.")
+                
+                # --- NOVO: SALVANDO O CÁLCULO PARA A IA LER ---
+                st.session_state["ultimo_calculo"] = {
+                    "aba": "Sistemas Lineares",
+                    "metodo": escolha_metodo,
+                    "matriz_A": a_str,
+                    "vetor_b": b_str,
+                    "chute_inicial": x0_str,
+                    "resultado_encontrado": np.array2string(solucao, precision=6) if 'solucao' in locals() and solucao is not None else "Falhou"
+                }
+                # ----------------------------------------------
+                
             except ValueError: st.error("Erro nos dados de entrada. Verifique a formatação.")
-            except Exception as e: st.error(f"Ocorreu um erro de cálculo: {e}")
+            except Exception as e: 
+                st.error(f"Ocorreu um erro de cálculo: {e}")
+                # --- NOVO: SALVANDO O ERRO PARA A IA LER ---
+                st.session_state["ultimo_calculo"] = {
+                    "aba": "Sistemas Lineares",
+                    "metodo": escolha_metodo,
+                    "matriz_A": a_str,
+                    "vetor_b": b_str,
+                    "erro_gerado": str(e)
+                }
+                # -------------------------------------------
 
 def show_ajustes_page():
     """Exibe a página para os métodos de ajuste de curvas."""
     st.subheader("Ajuste uma curva a um conjunto de pontos de dados (x, y)")
-    escolha_metodo = st.selectbox("Escolha o método:", ["Regressão Linear", "Mínimos Quadrados (Polinomial)"])
+
+    col1, col2 = st.columns([4, 1])
+    with col1:
+        escolha_metodo = st.selectbox("Escolha o método:", ["Regressão Linear", "Mínimos Quadrados (Polinomial)"])
+    with col2:
+        st.markdown("<div style='margin-top: 27px;'></div>", unsafe_allow_html=True)
+        if st.button("🤖 Como funciona?", key="help_ajustes", use_container_width=True):
+            st.session_state["pergunta_pendente"] = f"Pode me explicar de forma didática o que é e como funciona o método de {escolha_metodo} para Ajuste de Curvas?"
+            st.toast("💬 Verifique a barra lateral! A IA está respondendo...", icon="🤖")
 
     with st.container(border=True):
         cols = st.columns(2)
@@ -210,7 +309,16 @@ def show_ajustes_page():
 
         grau = st.number_input("Grau do Polinômio:", min_value=1, max_value=10, value=2, step=1) if "Mínimos Quadrados" in escolha_metodo else 1
 
+        current_inputs = {
+            "metodo": escolha_metodo,
+            "x_str": x_str,
+            "y_str": y_str,
+            "grau": grau
+        }
         if st.button("Calcular Ajuste", type="primary", key="ajuste_btn"):
+            st.session_state["trigger_calc_ajustes"] = current_inputs
+            
+        if st.session_state.get("trigger_calc_ajustes") == current_inputs:
             try:
                 x_data = np.array([float(i.strip()) for i in x_str.split(',')]); y_data = np.array([float(i.strip()) for i in y_str.split(',')])
                 if len(x_data) != len(y_data): st.error("Os conjuntos X e Y devem ter o mesmo número de pontos."); return
@@ -248,8 +356,29 @@ def show_ajustes_page():
                     ax.set_xlabel("X"); ax.set_ylabel("Y"); ax.set_title("Ajuste de Curva vs Dados Originais"); ax.legend(); ax.grid(True)
                     st.pyplot(fig, use_container_width=True)
 
+                # --- NOVO: SALVANDO O CÁLCULO PARA A IA LER ---
+                st.session_state["ultimo_calculo"] = {
+                    "aba": "Ajuste de Curvas",
+                    "metodo": escolha_metodo,
+                    "x_data": x_str,
+                    "y_data": y_str,
+                    "grau_polinomio": grau,
+                    "resultado_encontrado": "Ajuste calculado com sucesso"
+                }
+                # ----------------------------------------------
+
             except ValueError: st.error("Erro nos dados de entrada. Verifique a formatação.")
-            except Exception as e: st.error(f"Ocorreu um erro inesperado: {e}")
+            except Exception as e: 
+                st.error(f"Ocorreu um erro inesperado: {e}")
+                # --- NOVO: SALVANDO O ERRO PARA A IA LER ---
+                st.session_state["ultimo_calculo"] = {
+                    "aba": "Ajuste de Curvas",
+                    "metodo": escolha_metodo,
+                    "x_data": x_str,
+                    "y_data": y_str,
+                    "erro_gerado": str(e)
+                }
+                # -------------------------------------------
 
 
 def render_chatbot():
@@ -280,36 +409,124 @@ def render_chatbot():
     # Inicializa o histórico do chat na sessão do Streamlit
     if "messages" not in st.session_state:
         st.session_state.messages = [
-            {"role": "system", "content": "Você é o assistente virtual do SuperMath, uma calculadora de cálculo numérico para estudantes de Ciência da Computação. Seu objetivo é ajudar o usuário a usar o site e explicar de forma didática e fácil como funcionam métodos como Bisseção, Newton-Raphson, Eliminação de Gauss, Ajuste de Curvas, etc. Responda em português de forma clara e amigável."}
+            {"role": "system", "content": "Você é o assistente virtual do SuperMath. IMPORTANTE: Sempre que o usuário perguntar sobre o cálculo atual, relatar um erro ou pedir para analisar a tela, você DEVE OBRIGATORIAMENTE usar a ferramenta 'obter_ultimo_calculo'. Responda em português de forma clara e amigável."}
         ]
+        
+    # Cria um container exclusivo para que as mensagens fiquem sempre acima do campo de input
+    chat_container = st.container()
 
-    # Exibe as mensagens do chat (ignora a mensagem de sistema)
+    # Exibe as mensagens do chat (ignora a mensagem de sistema e do uso interno de ferramentas)
     for msg in st.session_state.messages:
-        if msg["role"] != "system":
-            with st.chat_message(msg["role"]):
-                st.markdown(msg["content"])
+        if msg["role"] not in ["system", "tool"]:
+            if msg.get("content"): # Garante que a mensagem tem texto
+                with chat_container.chat_message(msg["role"]):
+                    st.markdown(msg["content"])
+
+    # Define o "Cinto de Utilidades" da IA (Function Calling)
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "obter_ultimo_calculo",
+                "description": "Obtém os dados do último cálculo numérico que o usuário realizou ou tentou realizar na interface (método, função, parâmetros e resultados/erros). Chame essa função se o usuário perguntar sobre o cálculo atual, perguntar por que um método falhou ou pedir para analisar o resultado na tela.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "motivo": {
+                            "type": "string",
+                            "description": "O motivo de você estar chamando esta ferramenta."
+                        }
+                    },
+                    "required": []
+                }
+            }
+        }
+    ]
+
+    # Verifica o status do último cálculo salvo no histórico
+    ultimo = st.session_state.get("ultimo_calculo", {})
+    fez_calculo = bool(ultimo)
+    calculo_falhou = "erro_gerado" in ultimo or ultimo.get("resultado_encontrado") == "Falhou"
+
+    prompt_sugerido = None
+    if fez_calculo:
+        if calculo_falhou:
+            if st.button("💡 Por que meu último cálculo falhou?", use_container_width=True):
+                prompt_sugerido = "Eu tentei calcular agora e deu um erro ou falhou. Pode analisar os dados da minha tela e me explicar o que aconteceu de errado?"
+        else:
+            if st.button("💡 Me explique como chegou nesse resultado", use_container_width=True):
+                prompt_sugerido = "Meu cálculo deu certo! Pode analisar os dados da minha tela e me explicar passo a passo de forma didática como o método chegou nesse resultado?"
 
     # Campo de entrada para a pergunta do usuário
-    if prompt := st.chat_input("Faça uma pergunta (ex: 'Como funciona o método de Newton-Raphson?')..."):
+    prompt_usuario = st.chat_input("Faça uma pergunta (ex: 'Como funciona o método de Newton-Raphson?')...")
+    
+    # Puxa a pergunta gerada pelos botões das abas (se houver) e limpa a variável da sessão para não repetir
+    prompt_pendente = st.session_state.pop("pergunta_pendente", None)
+
+    prompt = prompt_pendente or prompt_sugerido or prompt_usuario
+
+    if prompt:
         st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
+        with chat_container.chat_message("user"):
             st.markdown(prompt)
 
-        with st.chat_message("assistant"):
+        with chat_container.chat_message("assistant"):
             try:
-                # Chamada para a API do Groq usando o modelo Llama 3.1 veloz
+                # Chamada para a API usando o modelo mais potente (70b)
                 completion = client.chat.completions.create(
-                    model="llama-3.1-8b-instant",
+                    model="llama-3.3-70b-versatile",
                     messages=st.session_state.messages,
                     temperature=0.3,
                     max_tokens=1024,
+                        tools=tools,
+                        tool_choice="auto"
                 )
-                response = completion.choices[0].message.content
-                st.markdown(response)
-                st.session_state.messages.append({"role": "assistant", "content": response})
+                
+                response_message = completion.choices[0].message
+                
+                # Verifica se a IA decidiu que precisa usar a ferramenta
+                if response_message.tool_calls:
+                    with st.status("🔍 Lendo os dados da sua tela...", expanded=False) as status:
+                        # 1. Salva a requisição da ferramenta no histórico
+                        tool_calls_list = []
+                        for t in response_message.tool_calls:
+                            tool_calls_list.append({
+                                "id": t.id, "type": "function", "function": {"name": t.function.name, "arguments": t.function.arguments}
+                            })
+                        st.session_state.messages.append({
+                            "role": "assistant", "content": response_message.content, "tool_calls": tool_calls_list
+                        })
+                        
+                        # 2. Roda o código Python real para cada ferramenta solicitada
+                        for tool_call in response_message.tool_calls:
+                            if tool_call.function.name == "obter_ultimo_calculo":
+                                tool_result = obter_ultimo_calculo(st.session_state) # Executa o tools.py
+                                st.session_state.messages.append({
+                                    "tool_call_id": tool_call.id, "role": "tool", "name": tool_call.function.name, "content": tool_result,
+                                })
+                        status.update(label="Dados analisados! Formulando resposta...", state="running")
+                        
+                        # 3. Faz a 2ª chamada SEM o parâmetro tools (Força a IA a dar a resposta final em texto)
+                        second_completion = client.chat.completions.create(
+                            model="llama-3.3-70b-versatile",
+                            messages=st.session_state.messages,
+                            temperature=0.3,
+                            max_tokens=1024
+                        )
+                        final_response = second_completion.choices[0].message.content or "Não consegui gerar uma resposta."
+                        status.update(label="Resposta gerada!", state="complete")
+                        
+                    st.markdown(final_response)
+                    st.session_state.messages.append({"role": "assistant", "content": final_response})
+                    
+                else:
+                    # Caso normal: Ela respondeu sem precisar de ferramentas
+                    response = response_message.content or "Não entendi."
+                    st.markdown(response)
+                    st.session_state.messages.append({"role": "assistant", "content": response})
             except Exception as e:
-                st.error("Ocorreu um erro na comunicação com o Groq. Isso pode acontecer se a API retornar uma mensagem com caracteres especiais.")
-                # st.exception é a forma mais robusta de exibir um erro, pois lida com a formatação e evita problemas de encoding.
+                st.error("❌ Erro na comunicação com a IA.")
+                st.info("💡 Dica: O histórico do chat pode ter travado. Clique em '🗑️ Limpar Chat' acima e tente perguntar novamente.")
                 st.exception(e)
 
 
