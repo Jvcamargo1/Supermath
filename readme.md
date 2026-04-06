@@ -17,11 +17,21 @@ O **SuperMath** é uma aplicação web desenvolvida em Python com o framework St
 
 O app foi upado no StreamLit Cloud Community para facilitar o acesso: https://supermath.streamlit.app/
 
-Caso queira executar localmente, siga as proximas instruções...
+---
+
+## ☁️ Executando com GitHub Codespaces (Sem instalar nada)
+
+Como o projeto possui um contêiner de desenvolvimento configurado (`.devcontainer`), você pode rodar a aplicação com todas as dependências instaladas diretamente pelo navegador:
+
+1. Na página inicial do repositório no GitHub, clique no botão verde **"<> Code"**.
+2. Selecione a aba **"Codespaces"** e clique em **"Create codespace on main"**.
+3. Aguarde o ambiente carregar. Ele executará o `requirements.txt` automaticamente e abrirá o aplicativo em uma nova aba (porta 8501).
+
+*Nota: Para usar o Chatbot com IA no Codespaces, você precisará adicionar a sua `GROQ_API_KEY` criando o arquivo `.env` dentro do ambiente.*
 
 ---
 
-## Como Executar o Projeto
+## 💻 Como Executar o Projeto Localmente
 
 Siga as instruções abaixo para configurar o ambiente e executar a aplicação em sua máquina local.
 
