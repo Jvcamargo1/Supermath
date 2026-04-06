@@ -41,8 +41,8 @@ Certifique-se de ter os seguintes itens instalados:
 Clone o repositório para o seu ambiente local:
 
 ```bash
-git clone https://github.com/Jvcamargo1/comp_num.git
-cd comp_num
+git clone https://github.com/Jvcamargo1/Supermath.git
+cd Supermath
 ```
 
 ---
