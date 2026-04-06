@@ -6,16 +6,16 @@ import matplotlib.pyplot as plt
 import sympy
 
 # --- Local Imports ---
-from matematica.ajustes.regressao_linear import regressao_linear
-from matematica.ajustes.minimos_quadrados import minimos_quadrados
-from matematica.sistemas.gauss_pivoteamento import gauss_pivoteamento
-from matematica.sistemas.fatoracao_lu import fatoracao_lu, solve_lu
-from matematica.sistemas.jacobi import jacobi
-from matematica.sistemas.gauss_seidel import gauss_seidel
-from matematica.raizes.bissecao import bissecao
-from matematica.raizes.ponto_fixo import ponto_fixo
-from matematica.raizes.newton_raphson import newton_raphson
-from matematica.raizes.secantes import secantes
+from metodos_numericos.ajustes.regressao_linear import regressao_linear
+from metodos_numericos.ajustes.minimos_quadrados import minimos_quadrados
+from metodos_numericos.sistemas.gauss_pivoteamento import gauss_pivoteamento
+from metodos_numericos.sistemas.fatoracao_lu import fatoracao_lu, solve_lu
+from metodos_numericos.sistemas.jacobi import jacobi
+from metodos_numericos.sistemas.gauss_seidel import gauss_seidel
+from metodos_numericos.raizes.bissecao import bissecao
+from metodos_numericos.raizes.ponto_fixo import ponto_fixo
+from metodos_numericos.raizes.newton_raphson import newton_raphson
+from metodos_numericos.raizes.secantes import secantes
 
 # Carrega as variáveis de ambiente do arquivo .env
 load_dotenv()

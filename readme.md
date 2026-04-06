@@ -4,6 +4,15 @@ O **SuperMath** é uma aplicação web desenvolvida em Python com o framework St
 
 ---
 
+## ✨ Funcionalidades
+
+- **🎯 Raízes de Funções:** Bisseção, Ponto Fixo, Newton-Raphson e Secantes.
+- **🔢 Sistemas Lineares:** Eliminação de Gauss com Pivoteamento, Fatoração LU, Jacobi e Gauss-Seidel.
+- **📈 Ajuste de Curvas:** Regressão Linear e Mínimos Quadrados (Polinomial).
+- **🤖 Assistente IA Integrado:** Chatbot inteligente alimentado pela API do Groq (modelo Llama 3) para tirar dúvidas sobre os métodos numéricos e ajudar na interpretação dos resultados!
+
+---
+
 ## Como Acessar o projeto
 
 O app foi upado no StreamLit Cloud Community para facilitar o acesso: https://trabalhocompnum.streamlit.app/
@@ -65,7 +74,21 @@ pip install -r requirements.txt
 
 ---
 
-## 5. Executando a Aplicação
+## 5. Configurando o Assistente IA (Chave da API)
+
+Para que o chatbot de Inteligência Artificial funcione localmente, você precisará configurar uma chave de API gratuita do Groq:
+
+1. Crie uma conta e gere sua chave em: [Groq Console](https://console.groq.com/keys)
+2. Na raiz do projeto, faça uma cópia do arquivo `.env.example` e renomeie essa cópia para `.env`
+3. Abra o arquivo `.env` recém-criado e substitua o valor de exemplo pela sua chave real:
+
+```env
+GROQ_API_KEY=sua_chave_api_real_aqui
+```
+
+---
+
+## 6. Executando a Aplicação
 
 Inicie o servidor local do Streamlit executando o comando abaixo na raiz do projeto:
 
@@ -78,4 +101,3 @@ A aplicação estará disponível no navegador no endereço:
 http://localhost:8501
 
 ---
-

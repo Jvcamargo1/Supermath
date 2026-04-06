@@ -1,3 +1,4 @@
+# Lista das bibliotecas usadas no projeto
 streamlit
 numpy
 sympy

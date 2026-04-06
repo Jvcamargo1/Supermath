@@ -1,12 +1,17 @@
-# Ambiente Virtual
-venv/
-
-# Arquivo de variáveis de ambiente
+# Variáveis de ambiente (Segurança)
 .env
 
-# Arquivos de cache do Python
+# Ignorar a pasta do ambiente virtual Python
+venv/
 __pycache__/
+*.pyc
 
+# Ignora a pasta do histórico do projeto
 .history
 
+# Ignora a pasta de configuração local do Streamlit
 .streamlit
+
+# Ignora arquivos ocultos de sistema operacional (Mac/Windows)
+.DS_Store
+Thumbs.db
