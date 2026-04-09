@@ -24,7 +24,7 @@ load_dotenv()
 # --- Page Configuration and Styling ---
 st.set_page_config(
     page_title="SuperMath",
-    page_icon="🧮",
+    page_icon="assets/img/simbolo_supermath.png",
     layout="wide",
     menu_items={
         'About': "### SuperMath\nCalculadora de computação numérica desenvolvida por um agente de IA."
@@ -41,17 +41,42 @@ st.markdown("""
         padding-left: 3rem;
         padding-right: 3rem;
     }
-    /* Style for containers with border */
+    /* Style for containers with border - Superman Theme */
     div[data-testid="stVerticalBlock"] div[data-testid="stVerticalBlock"] div[data-testid="stVerticalBlock"] > div[style*="border"] {
         box-shadow: 0 4px 8px 0 rgba(0,0,0,0.1);
+        border-top: 3px solid #e60c0c !important;
+        border-bottom: 3px solid #fee800 !important;
         border-radius: 0.5rem;
         padding: 1.5rem;
         margin-bottom: 1.5rem;
     }
-    /* Primary button style */
+    /* Primary button style - Superman Theme */
     div.stButton > button[kind="primary"] {
-        background-color: #0068C9;
-        color: white;
+        background-color: #e60c0c;
+        color: #fee800;
+        border: 2px solid #000000;
+        font-weight: 800;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+    }
+    div.stButton > button[kind="primary"]:hover {
+        background-color: #fee800;
+        color: #e60c0c;
+        border: 2px solid #000000;
+    }
+    /* Subheaders and Tabs styling */
+    h2, h3 {
+        color: #e60c0c !important;
+    }
+    .stTabs [data-baseweb="tab-highlight"] {
+        background-color: #e60c0c !important;
+    }
+    .stTabs [data-baseweb="tab-list"] button[aria-selected="true"] {
+        color: #e60c0c !important;
+    }
+    /* Centralizar os botões seletores das abas */
+    .stTabs [data-baseweb="tab-list"] {
+        justify-content: center;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -59,7 +84,10 @@ st.markdown("""
 
 def main():
     """Função principal da aplicação Streamlit com navegação por abas."""
-    st.title("🧮 SuperMath")
+    # Centraliza o logotipo usando colunas [1, 1, 1]
+    col_logo1, col_logo2, col_logo3 = st.columns([1, 1, 1])
+    with col_logo2:
+        st.image("assets/img/logotipo_supermath.png", use_container_width=True)
 
     tab_raizes, tab_sistemas, tab_ajustes = st.tabs([
         "🎯 Raízes de Funções",
@@ -79,12 +107,18 @@ def main():
     # o "ultimo_calculo" com os dados mais atualizados das abas acima!
     with st.sidebar:
         # Cabeçalho com botão de limpar chat alinhado
-        head_col1, head_col2 = st.columns([5, 1])
+        head_col1, head_col2 = st.columns([4, 1])
         with head_col1:
-            st.header("🤖 Assistente IA")
+            # Usando colunas para alinhar a nova imagem ao lado do título
+            col_img, col_txt = st.columns([1, 3])
+            with col_img:
+                st.markdown("<div style='margin-top: 8px;'></div>", unsafe_allow_html=True)
+                st.image("assets/img/bot_icon.png", width=45)
+            with col_txt:
+                st.markdown("<h2 style='margin-top: 8px;'>Clark Calc</h2>", unsafe_allow_html=True)
         with head_col2:
             st.markdown("<div style='margin-top: 22px;'></div>", unsafe_allow_html=True)
-            if st.button("🗑️", help="Limpar histórico do chat"):
+            if st.button("🗑️", help="Limpar histórico do chat", use_container_width=True):
                 if "messages" in st.session_state: del st.session_state["messages"]
                 st.rerun()
         render_chatbot()
@@ -103,16 +137,17 @@ def parse_function(func_str, var_symbol='x'):
 
 def show_raizes_page():
     """Exibe a página para os métodos de raízes de funções."""
-    st.subheader("Encontre a raiz de `f(x) = 0` para uma dada função")
+    st.markdown("<h3 style='text-align: center;'>Encontre a raiz de <code>f(x) = 0</code> para uma dada função</h3>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; margin-bottom: 2rem;'>A raiz de uma função é o valor exato de <strong>x</strong> que faz com que o resultado da função seja igual a zero (o ponto onde o gráfico corta o eixo X). Escolha um método numérico abaixo para aproximar esse valor iterativamente!</p>", unsafe_allow_html=True)
     
     col1, col2 = st.columns([4, 1])
     with col1:
         escolha_metodo = st.selectbox("Escolha o método:", ["Bisseção", "Ponto Fixo", "Newton-Raphson", "Secantes"])
     with col2:
         st.markdown("<div style='margin-top: 27px;'></div>", unsafe_allow_html=True)
-        if st.button("🤖 Como funciona?", key="help_raizes", use_container_width=True):
+        if st.button("💬 Como funciona?", key="help_raizes", use_container_width=True):
             st.session_state["pergunta_pendente"] = f"Pode me explicar de forma didática o que é e como funciona o método de {escolha_metodo} para encontrar raízes de funções?"
-            st.toast("💬 Verifique a barra lateral! A IA está respondendo...", icon="🤖")
+            st.toast("Verifique a barra lateral! O Clark Calc está respondendo...", icon="💬")
     
     with st.container(border=True):
         func_str = st.text_input("Função f(x)", value="x**3 - x - 2", help="Use sintaxe Python. Funções comuns: exp, sin, cos, tan, sqrt, log.")
@@ -138,7 +173,11 @@ def show_raizes_page():
             "g_func_str": g_func_str if escolha_metodo == "Ponto Fixo" else None,
             "params": params
         }
-        if st.button("Encontrar Raiz", type="primary", key="raiz_btn"):
+        
+        col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 1])
+        with col_btn2:
+            calc_btn = st.button("Encontrar Raiz", type="primary", key="raiz_btn", use_container_width=True)
+        if calc_btn:
             st.session_state["trigger_calc_raizes"] = current_inputs
             
         if st.session_state.get("trigger_calc_raizes") == current_inputs:
@@ -203,16 +242,17 @@ def show_raizes_page():
 
 def show_sistemas_page():
     """Exibe a página para os métodos de sistemas lineares."""
-    st.subheader("Resolva um sistema de equações lineares no formato `Ax = b`")
+    st.markdown("<h3 style='text-align: center;'>Resolva um sistema de equações lineares no formato <code>Ax = b</code></h3>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; margin-bottom: 2rem;'>Resolver um sistema linear significa encontrar os valores de um conjunto de variáveis que satisfazem várias equações simultaneamente. Insira sua matriz de coeficientes e o vetor de constantes para encontrar a solução exata ou aproximada!</p>", unsafe_allow_html=True)
 
     col1, col2 = st.columns([4, 1])
     with col1:
         escolha_metodo = st.selectbox("Escolha o método:", ["Eliminação de Gauss com Pivoteamento", "Fatoração LU", "Jacobi", "Gauss-Seidel"])
     with col2:
         st.markdown("<div style='margin-top: 27px;'></div>", unsafe_allow_html=True)
-        if st.button("🤖 Como funciona?", key="help_sistemas", use_container_width=True):
+        if st.button("💬 Como funciona?", key="help_sistemas", use_container_width=True):
             st.session_state["pergunta_pendente"] = f"Pode me explicar de forma didática o que é e como funciona o método de {escolha_metodo} para resolver Sistemas Lineares?"
-            st.toast("💬 Verifique a barra lateral! A IA está respondendo...", icon="🤖")
+            st.toast("Verifique a barra lateral! O Clark Calc está respondendo...", icon="💬")
 
     with st.container(border=True):
         a_str = st.text_area("Matriz A", "4, -1, 1\n-1, 4, -2\n1, -2, 4", height=120, help="Separe linhas com 'enter' e elementos com vírgula.")
@@ -235,7 +275,10 @@ def show_sistemas_page():
             "max_iter": max_iter
         }
         
-        if st.button("Calcular Solução", type="primary", key="sis_btn"):
+        col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 1])
+        with col_btn2:
+            calc_btn = st.button("Calcular Solução", type="primary", key="sis_btn", use_container_width=True)
+        if calc_btn:
             st.session_state["trigger_calc_sistemas"] = current_inputs
             
         if st.session_state.get("trigger_calc_sistemas") == current_inputs:
@@ -297,16 +340,17 @@ def show_sistemas_page():
 
 def show_ajustes_page():
     """Exibe a página para os métodos de ajuste de curvas."""
-    st.subheader("Ajuste uma curva a um conjunto de pontos de dados (x, y)")
+    st.markdown("<h3 style='text-align: center;'>Ajuste uma curva a um conjunto de pontos de dados (x, y)</h3>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; margin-bottom: 2rem;'>O ajuste de curvas é utilizado para encontrar a equação matemática (uma reta ou polinômio) que melhor descreve o comportamento de dados reais/experimentais. Insira os dados para visualizar a linha de tendência!</p>", unsafe_allow_html=True)
 
     col1, col2 = st.columns([4, 1])
     with col1:
         escolha_metodo = st.selectbox("Escolha o método:", ["Regressão Linear", "Mínimos Quadrados (Polinomial)"])
     with col2:
         st.markdown("<div style='margin-top: 27px;'></div>", unsafe_allow_html=True)
-        if st.button("🤖 Como funciona?", key="help_ajustes", use_container_width=True):
+        if st.button("💬 Como funciona?", key="help_ajustes", use_container_width=True):
             st.session_state["pergunta_pendente"] = f"Pode me explicar de forma didática o que é e como funciona o método de {escolha_metodo} para Ajuste de Curvas?"
-            st.toast("💬 Verifique a barra lateral! A IA está respondendo...", icon="🤖")
+            st.toast("Verifique a barra lateral! O Clark Calc está respondendo...", icon="💬")
 
     with st.container(border=True):
         cols = st.columns(2)
@@ -321,7 +365,11 @@ def show_ajustes_page():
             "y_str": y_str,
             "grau": grau
         }
-        if st.button("Calcular Ajuste", type="primary", key="ajuste_btn"):
+        
+        col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 1])
+        with col_btn2:
+            calc_btn = st.button("Calcular Ajuste", type="primary", key="ajuste_btn", use_container_width=True)
+        if calc_btn:
             st.session_state["trigger_calc_ajustes"] = current_inputs
             
         if st.session_state.get("trigger_calc_ajustes") == current_inputs:
@@ -392,7 +440,16 @@ def show_ajustes_page():
 
 def render_chatbot():
     """Renderiza a interface do Chatbot na barra lateral."""
-    st.markdown("Tire suas dúvidas sobre os métodos numéricos, algoritmos ou peça ajuda para entender as respostas!")
+    st.markdown("""
+    **Seu assistente inteligente com visão de raio-X! 🦸‍♂️**
+    
+    O **Clark Calc** acompanha tudo o que você faz no SuperMath. Ele pode:
+    - 🔍 **Analisar seus cálculos** e resultados na tela.
+    - 💡 **Explicar passo a passo** como cada método funciona.
+    - 🛠️ **Encontrar o problema** caso algum cálculo falhe.
+    
+    *Faça uma pergunta abaixo ou use os botões de ajuda nas abas!*
+    """)
 
     # Tenta carregar das Secrets do Streamlit Cloud; se não existir, usa as variáveis de ambiente local (.env)
     try:
@@ -418,7 +475,7 @@ def render_chatbot():
     # Inicializa o histórico do chat na sessão do Streamlit
     if "messages" not in st.session_state:
         st.session_state.messages = [
-            {"role": "system", "content": "Você é o assistente virtual do SuperMath. IMPORTANTE: Sempre que o usuário perguntar sobre o cálculo atual, relatar um erro ou pedir para analisar a tela, você DEVE OBRIGATORIAMENTE usar a ferramenta 'obter_ultimo_calculo'. Responda em português de forma clara e amigável."}
+            {"role": "system", "content": "Você é o Clark Calc, o assistente virtual super-herói do SuperMath. IMPORTANTE: Sempre que o usuário perguntar sobre o cálculo atual, relatar um erro ou pedir para analisar a tela, você DEVE OBRIGATORIAMENTE usar a ferramenta 'obter_ultimo_calculo'. Responda em português de forma clara, prestativa e amigável."}
         ]
         
     # Cria um container exclusivo para que as mensagens fiquem sempre acima do campo de input
@@ -428,7 +485,9 @@ def render_chatbot():
     for msg in st.session_state.messages:
         if msg["role"] not in ["system", "tool"]:
             if msg.get("content"): # Garante que a mensagem tem texto
-                with chat_container.chat_message(msg["role"]):
+                # Se o autor for a IA, usa o novo ícone customizado
+                avatar_icon = "assets/img/bot_icon.png" if msg["role"] == "assistant" else None
+                with chat_container.chat_message(msg["role"], avatar=avatar_icon):
                     st.markdown(msg["content"])
 
     # Define o "Cinto de Utilidades" da IA (Function Calling)
@@ -479,7 +538,7 @@ def render_chatbot():
         with chat_container.chat_message("user"):
             st.markdown(prompt)
 
-        with chat_container.chat_message("assistant"):
+        with chat_container.chat_message("assistant", avatar="assets/img/bot_icon.png"):
             try:
                 # Chamada para a API usando o modelo mais potente (70b)
                 completion = client.chat.completions.create(
