@@ -83,16 +83,14 @@ st.markdown("""
 
 
 def main():
-    """Função principal da aplicação Streamlit com navegação por abas."""
-    # Centraliza o logotipo usando colunas [1, 1, 1]
     col_logo1, col_logo2, col_logo3 = st.columns([1, 1, 1])
     with col_logo2:
         st.image("assets/img/logotipo_supermath.png", use_container_width=True)
 
     tab_raizes, tab_sistemas, tab_ajustes = st.tabs([
-        "🎯 Raízes de Funções",
-        "🔢 Sistemas Lineares",
-        "📈 Ajuste de Curvas"
+        "Raízes de Funções",
+        "Sistemas Lineares",
+        "Ajuste de Curvas"
     ])
 
     with tab_raizes:
@@ -103,13 +101,9 @@ def main():
         show_ajustes_page()
 
     # --- BARRA LATERAL DO CHATBOT ---
-    # Chamado no final do código para garantir que ele consiga ler 
-    # o "ultimo_calculo" com os dados mais atualizados das abas acima!
     with st.sidebar:
-        # Cabeçalho com botão de limpar chat alinhado
         head_col1, head_col2 = st.columns([4, 1])
         with head_col1:
-            # Usando colunas para alinhar a nova imagem ao lado do título
             col_img, col_txt = st.columns([1, 3])
             with col_img:
                 st.markdown("<div style='margin-top: 8px;'></div>", unsafe_allow_html=True)
@@ -125,7 +119,6 @@ def main():
 
 
 def parse_function(func_str, var_symbol='x'):
-    """Converte uma string de função em uma função numérica usando Sympy."""
     try:
         x = sympy.Symbol(var_symbol)
         local_dict = {"exp": sympy.exp, "sin": sympy.sin, "cos": sympy.cos, "tan": sympy.tan, "sqrt": sympy.sqrt, "log": sympy.log}
@@ -136,7 +129,6 @@ def parse_function(func_str, var_symbol='x'):
 
 
 def show_raizes_page():
-    """Exibe a página para os métodos de raízes de funções."""
     st.markdown("<h3 style='text-align: center;'>Encontre a raiz de <code>f(x) = 0</code> para uma dada função</h3>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center; margin-bottom: 2rem;'>A raiz de uma função é o valor exato de <strong>x</strong> que faz com que o resultado da função seja igual a zero (o ponto onde o gráfico corta o eixo X). Escolha um método numérico abaixo para aproximar esse valor iterativamente!</p>", unsafe_allow_html=True)
     
@@ -198,7 +190,7 @@ def show_raizes_page():
                     resultado, info = newton_raphson(func, df, params['x0'], params['tol'], params['max_iter'])
                 elif escolha_metodo == "Secantes": resultado, info = secantes(func, params['x0'], params['x1'], params['tol'], params['max_iter'])
                 
-                # --- NOVO: SALVANDO O CÁLCULO PARA A IA LER ---
+                
                 st.session_state["ultimo_calculo"] = {
                     "aba": "Raízes de Funções",
                     "metodo": escolha_metodo,
@@ -230,7 +222,7 @@ def show_raizes_page():
             except Exception as e: 
                 st.error(f"Ocorreu um erro de cálculo: {e}")
                 
-                # --- NOVO: SALVANDO O ERRO PARA A IA LER ---
+                
                 st.session_state["ultimo_calculo"] = {
                     "aba": "Raízes de Funções",
                     "metodo": escolha_metodo,
@@ -315,7 +307,6 @@ def show_sistemas_page():
                     st.success(f"**Vetor solução x:** `{np.array2string(solucao, precision=6)}`")
                     st.info(f"Solução encontrada em {k} iterações.")
                 
-                # --- NOVO: SALVANDO O CÁLCULO PARA A IA LER ---
                 st.session_state["ultimo_calculo"] = {
                     "aba": "Sistemas Lineares",
                     "metodo": escolha_metodo,
@@ -414,7 +405,6 @@ def show_ajustes_page():
                     ax.set_xlabel("X"); ax.set_ylabel("Y"); ax.set_title("Ajuste de Curva vs Dados Originais"); ax.legend(); ax.grid(True)
                     st.pyplot(fig, use_container_width=True)
 
-                # --- NOVO: SALVANDO O CÁLCULO PARA A IA LER ---
                 st.session_state["ultimo_calculo"] = {
                     "aba": "Ajuste de Curvas",
                     "metodo": escolha_metodo,
@@ -427,7 +417,6 @@ def show_ajustes_page():
 
             except Exception as e: 
                 st.error(f"Ocorreu um erro inesperado: {e}")
-                # --- NOVO: SALVANDO O ERRO PARA A IA LER ---
                 st.session_state["ultimo_calculo"] = {
                     "aba": "Ajuste de Curvas",
                     "metodo": escolha_metodo,
@@ -439,7 +428,6 @@ def show_ajustes_page():
 
 
 def render_chatbot():
-    """Renderiza a interface do Chatbot na barra lateral."""
     st.markdown("""
     **Seu assistente inteligente com visão de raio-X! 🦸‍♂️**
     
@@ -485,12 +473,11 @@ def render_chatbot():
     for msg in st.session_state.messages:
         if msg["role"] not in ["system", "tool"]:
             if msg.get("content"): # Garante que a mensagem tem texto
-                # Se o autor for a IA, usa o novo ícone customizado
                 avatar_icon = "assets/img/bot_icon.png" if msg["role"] == "assistant" else None
                 with chat_container.chat_message(msg["role"], avatar=avatar_icon):
                     st.markdown(msg["content"])
 
-    # Define o "Cinto de Utilidades" da IA (Function Calling)
+
     tools = [
         {
             "type": "function",
@@ -525,10 +512,9 @@ def render_chatbot():
             if st.button("💡 Me explique como chegou nesse resultado", use_container_width=True):
                 prompt_sugerido = "Meu cálculo deu certo! Pode analisar os dados da minha tela e me explicar passo a passo de forma didática como o método chegou nesse resultado?"
 
-    # Campo de entrada para a pergunta do usuário
     prompt_usuario = st.chat_input("Faça uma pergunta (ex: 'Como funciona o método de Newton-Raphson?')...")
     
-    # Puxa a pergunta gerada pelos botões das abas (se houver) e limpa a variável da sessão para não repetir
+    
     prompt_pendente = st.session_state.pop("pergunta_pendente", None)
 
     prompt = prompt_pendente or prompt_sugerido or prompt_usuario
@@ -540,7 +526,7 @@ def render_chatbot():
 
         with chat_container.chat_message("assistant", avatar="assets/img/bot_icon.png"):
             try:
-                # Chamada para a API usando o modelo mais potente (70b)
+                
                 completion = client.chat.completions.create(
                     model="llama-3.3-70b-versatile",
                     messages=st.session_state.messages,
@@ -552,10 +538,10 @@ def render_chatbot():
                 
                 response_message = completion.choices[0].message
                 
-                # Verifica se a IA decidiu que precisa usar a ferramenta
+                
                 if response_message.tool_calls:
                     with st.status("🔍 Lendo os dados da sua tela...", expanded=False) as status:
-                        # 1. Salva a requisição da ferramenta no histórico
+                        
                         tool_calls_list = []
                         for t in response_message.tool_calls:
                             tool_calls_list.append({
@@ -574,7 +560,6 @@ def render_chatbot():
                                 })
                         status.update(label="Dados analisados! Formulando resposta...", state="running")
                         
-                        # 3. Faz a 2ª chamada SEM o parâmetro tools (Força a IA a dar a resposta final em texto)
                         second_completion = client.chat.completions.create(
                             model="llama-3.3-70b-versatile",
                             messages=st.session_state.messages,
@@ -588,7 +573,6 @@ def render_chatbot():
                     st.session_state.messages.append({"role": "assistant", "content": final_response})
                     
                 else:
-                    # Caso normal: Ela respondeu sem precisar de ferramentas
                     response = response_message.content or "Não entendi."
                     st.markdown(response)
                     st.session_state.messages.append({"role": "assistant", "content": response})
