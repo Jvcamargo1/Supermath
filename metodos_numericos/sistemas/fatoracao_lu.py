@@ -34,11 +34,12 @@ def solve_lu(P, L, U, b):
         O vetor solução x.
     """
     # Ax = b  =>  PAx = Pb  =>  LUx = Pb
-    # 1. Resolva Ly = Pb  (forward substitution)
+    # 1. Resolva Ly = Pb  (substituição progressiva)
     Pb = np.dot(P, b)
     y = solve_triangular(L, Pb, lower=True, unit_diagonal=False)
     
-    # 2. Resolva Ux = y  (backward substitution)
+    # 2. Resolva Ux = y  (substituição regressiva)
     x = solve_triangular(U, y, lower=False, unit_diagonal=False)
     
     return x
+

@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import matplotlib.pyplot as plt
 import sympy
 
-# --- Local Imports ---
+# --- Importações Locais ---
 from metodos_numericos.ajustes.regressao_linear import regressao_linear
 from metodos_numericos.ajustes.minimos_quadrados import minimos_quadrados
 from metodos_numericos.sistemas.gauss_pivoteamento import gauss_pivoteamento
@@ -21,17 +21,17 @@ from tools import obter_ultimo_calculo
 # Carrega as variáveis de ambiente do arquivo .env
 load_dotenv()
 
-# --- Page Configuration and Styling ---
+# --- Configuração da Página e Estilo ---
 st.set_page_config(
     page_title="SuperMath",
     page_icon="assets/img/simbolo_supermath.png",
     layout="wide",
     menu_items={
-        'About': "### SuperMath\nCalculadora de computação numérica desenvolvida por um agente de IA."
+        'About': "### SuperMath\nCalculadora de computação numérica."
     }
 )
 
-# Custom CSS for a more modern look
+# CSS Customizado para um visual mais moderno
 st.markdown("""
 <style>
     /* Main container styling */
@@ -319,7 +319,7 @@ def show_sistemas_page():
                 
             except Exception as e: 
                 st.error(f"Ocorreu um erro de cálculo: {e}")
-                # --- NOVO: SALVANDO O ERRO PARA A IA LER ---
+                # --- SALVANDO O ERRO NO HISTÓRICO ---
                 st.session_state["ultimo_calculo"] = {
                     "aba": "Sistemas Lineares",
                     "metodo": escolha_metodo,
@@ -395,10 +395,10 @@ def show_ajustes_page():
                     ax.scatter(x_data, y_data, label='Dados Originais')
                     x_fit = np.linspace(x_data.min(), x_data.max(), 400)
                     if escolha_metodo == "Regressão Linear":
-                        a, b = regressao_linear(x_data, y_data) # Recalculate to have vars in scope
+                        a, b = regressao_linear(x_data, y_data) # Recalcular para ter as variáveis no escopo
                         y_fit = a * x_fit + b
                     else:
-                        coefs = minimos_quadrados(x_data, y_data, grau) # Recalculate to have vars in scope
+                        coefs = minimos_quadrados(x_data, y_data, grau) # Recalcular para ter as variáveis no escopo
                         p = np.poly1d(coefs)
                         y_fit = p(x_fit)
                     ax.plot(x_fit, y_fit, color='red', label='Curva Ajustada')
